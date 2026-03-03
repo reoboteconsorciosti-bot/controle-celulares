@@ -1,0 +1,36 @@
+﻿Ôû▓ Next.js 16.1.6 (Turbopack)
+
+node.exe : ÔÜá The "middleware" file convention is deprecated. Please 
+use "proxy" instead. Learn more: 
+https://nextjs.org/docs/messages/middleware-to-proxy
+No C:\nvm4w\nodejs\npx.ps1:29 caractere:3
++   & $NODE_EXE $NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ÔÜá The "middle...leware- 
+   to-proxy:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  Creating an optimized production build ...
+Ô£ô Compiled successfully in 8.2s
+  Skipping validation of types
+  Collecting page data using 11 workers ...
+[v0] DATABASE_URL exists: false
+[v0] DATABASE_URL exists: false
+[v0] DATABASE_URL exists: false
+[v0] DATABASE_URL exists: false
+[v0] DATABASE_URL exists: false
+[v0] DATABASE_URL exists: false
+[v0] DATABASE_URL exists: false
+[v0] DATABASE_URL exists: false
+  Generating static pages using 11 workers (0/18) ...
+Error occurred prerendering page "/_not-found". Read more: 
+https://nextjs.org/docs/messages/prerender-error
+ReferenceError: NextAuthProvider is not defined
+    at i (C:\Users\gabri\Downloads\controle de celulares e tablets\.nex
+t\server\chunks\ssr\[root-of-the-server]__28fc9a3e._.js:1:2501)
+    at stringify (<anonymous>) {
+  digest: '980066060'
+}
+Export encountered an error on /_not-found/page: /_not-found, exiting 
+the build.
+Ô¿» Next.js build worker exited with code: 1 and signal: null
