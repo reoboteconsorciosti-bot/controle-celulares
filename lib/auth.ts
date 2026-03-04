@@ -1,5 +1,4 @@
 import { NextAuthOptions } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
 import { db } from "@/lib/db"
 import { users } from "@/lib/db/schema"
@@ -11,21 +10,6 @@ export const authOptions: NextAuthOptions = {
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        }),
-
-        // Credentials Provider — MANTIDO para proteger a página de Credenciais
-        CredentialsProvider({
-            name: "Chave Mestra",
-            credentials: {
-                password: { label: "Senha", type: "password" },
-            },
-            async authorize(credentials) {
-                const adminPassword = process.env.ADMIN_PASSWORD || "genesis26"
-                if (credentials?.password === adminPassword) {
-                    return { id: "1", name: "Admin Manager", email: "admin@reobote.local" }
-                }
-                return null
-            },
         }),
     ],
     session: {
@@ -71,7 +55,8 @@ export const authOptions: NextAuthOptions = {
         },
     },
     pages: {
-        signIn: "/login",
+        signIn: "/",
+        error: "/",
     },
     secret: process.env.NEXTAUTH_SECRET || "default_development_secret_only",
 }
