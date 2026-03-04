@@ -225,18 +225,18 @@ export async function GET() {
                     }
 
                     // CREDENCIAIS
+                    // Limpa as credenciais existentes deste usuário para evitar fantasmas ou dados orfãos no cofre persistente
+                    await db.delete(credentials).where(eq(credentials.userId, user.id))
+
                     const createCred = async (system: string, username: string, password?: string) => {
                         if (!username) return;
-                        const cResult = await db.select().from(credentials).where(and(eq(credentials.userId, user.id), eq(credentials.system, system)))
-                        if (cResult.length === 0) {
-                            await db.insert(credentials).values({
-                                userId: user.id,
-                                system,
-                                username,
-                                password: password || null
-                            })
-                            totalCreds++
-                        }
+                        await db.insert(credentials).values({
+                            userId: user.id,
+                            system,
+                            username,
+                            password: password || null
+                        })
+                        totalCreds++
                     }
 
                     const gmailUser = row[10]?.toString().trim()
