@@ -102,6 +102,7 @@ export async function GET() {
                     totalUsers++
                 } else {
                     await db.update(users).set({ active: userActive, email: email, role }).where(eq(users.id, user.id))
+                    totalUsers++
                 }
 
                 // CELULAR 1
