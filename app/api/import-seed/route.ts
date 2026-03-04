@@ -66,12 +66,30 @@ export async function GET() {
                 if (tipo.includes("supervisor") || tipo.includes("gerente")) role = "Supervisor"
                 if (tipo.includes("administrativo") || tipo.includes("matriz") || consultorName.toLowerCase().includes("central")) role = "Outros"
 
-                const email = row[8]?.toString().trim() || `${consultorName.replace(/\s+/g, '.').toLowerCase()}@reobote.local`
+                let email = row[8]?.toString().trim() || ''
+                if (!email.includes('@')) {
+                    email = `${consultorName.replace(/\s+/g, '.').toLowerCase()}@reobote.local`
+                }
+
                 const userActive = statusText === 'ativado'
 
                 // User Upsert
                 let userResult = await db.select().from(users).where(eq(users.name, consultorName))
                 let user = userResult[0]
+
+                // Resolve conflitos de e-mail (unique constraint do bd) p/ Inativos ou E-mails Genéricos duplicados
+                let finalEmail = email
+                let counter = 1
+                while (true) {
+                    const existingMail = await db.select().from(users).where(eq(users.email, finalEmail))
+                    if (existingMail.length === 0 || (user && existingMail[0].id === user.id)) {
+                        break
+                    }
+                    const parts = email.split('@')
+                    finalEmail = `${parts[0]}-${counter}@${parts[1]}`
+                    counter++
+                }
+                email = finalEmail
 
                 if (!user) {
                     const inserted = await db.insert(users).values({
