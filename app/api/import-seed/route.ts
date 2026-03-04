@@ -60,6 +60,12 @@ export async function GET() {
                 continue
             }
 
+            // FILTRO DE EMPRESA EXTINTA
+            const rawEmail = row[8]?.toString().trim().toLowerCase() || ''
+            if (rawEmail.includes('@botemarketing')) {
+                continue // Pula o Vendedor inteiro e não cadastra nada dele
+            }
+
             if (consultorName && (statusText === 'ativado' || statusText === 'inativo')) {
                 const tipo = row[0]?.toString().toLowerCase() || ''
                 let role = "Consultor"
@@ -108,10 +114,13 @@ export async function GET() {
                 // CELULAR 1
                 let cel1 = row[4]?.toString().trim()
                 if (cel1 && cel1.includes(" e ")) cel1 = cel1.split(" e ")[0]
-                cel1 = cel1?.substring(0, 20)
 
+                // Extrai apenas os números para validação, mantendo o formato original se for número de fato
+                const justNumbers1 = cel1?.replace(/\D/g, '') || ''
                 let mainSimCardId = null
-                if (cel1 && cel1.length > 8) {
+
+                if (cel1 && cel1.length > 8 && justNumbers1.length >= 8) {
+                    cel1 = cel1.substring(0, 20)
                     let simResult = await db.select().from(simCards).where(eq(simCards.phoneNumber, cel1))
                     let sim = simResult[0]
 
@@ -134,9 +143,11 @@ export async function GET() {
                 // CELULAR 2
                 let cel2 = row[5]?.toString().trim()
                 if (cel2 && cel2.includes(" e ")) cel2 = cel2.split(" e ")[0]
-                cel2 = cel2?.substring(0, 20)
 
-                if (cel2 && cel2.length > 8) {
+                const justNumbers2 = cel2?.replace(/\D/g, '') || ''
+
+                if (cel2 && cel2.length > 8 && justNumbers2.length >= 8) {
+                    cel2 = cel2.substring(0, 20)
                     let sim2Result = await db.select().from(simCards).where(eq(simCards.phoneNumber, cel2))
                     if (sim2Result.length === 0) {
                         await db.insert(simCards).values({

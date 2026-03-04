@@ -15,3 +15,5 @@ async function main() {
 }
 
 main().catch(console.error)
+
+// npx tsx scripts/check-creds.ts
