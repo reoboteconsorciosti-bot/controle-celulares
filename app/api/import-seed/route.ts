@@ -43,7 +43,9 @@ export async function GET() {
 
             // CHIP LIVRE:
             if (row[0] === 'CHIPS LIVRES (SEM USO)' || (row[0] && row[0].toString().startsWith('67 9') && !consultorName)) {
-                const numeroLivre = (row[0] || '').toString().trim()
+                let numeroLivre = (row[0] || '').toString().trim()
+                if (numeroLivre.includes(" e ")) numeroLivre = numeroLivre.split(" e ")[0]
+                numeroLivre = numeroLivre.substring(0, 20)
                 if (numeroLivre.length > 8) {
                     const existingSims = await db.select().from(simCards).where(eq(simCards.phoneNumber, numeroLivre))
                     if (existingSims.length === 0) {
@@ -85,7 +87,10 @@ export async function GET() {
                 }
 
                 // CELULAR 1
-                const cel1 = row[4]?.toString().trim()
+                let cel1 = row[4]?.toString().trim()
+                if (cel1 && cel1.includes(" e ")) cel1 = cel1.split(" e ")[0]
+                cel1 = cel1?.substring(0, 20)
+
                 let mainSimCardId = null
                 if (cel1 && cel1.length > 8) {
                     let simResult = await db.select().from(simCards).where(eq(simCards.phoneNumber, cel1))
@@ -108,7 +113,10 @@ export async function GET() {
                 }
 
                 // CELULAR 2
-                const cel2 = row[5]?.toString().trim()
+                let cel2 = row[5]?.toString().trim()
+                if (cel2 && cel2.includes(" e ")) cel2 = cel2.split(" e ")[0]
+                cel2 = cel2?.substring(0, 20)
+
                 if (cel2 && cel2.length > 8) {
                     let sim2Result = await db.select().from(simCards).where(eq(simCards.phoneNumber, cel2))
                     if (sim2Result.length === 0) {
@@ -126,8 +134,8 @@ export async function GET() {
                 }
 
                 // SMARTPHONE
-                const imei1 = row[6]?.toString().trim()
-                const imei2 = row[7]?.toString().trim()
+                const imei1 = row[6]?.toString().trim().substring(0, 20)
+                const imei2 = row[7]?.toString().trim().substring(0, 20)
                 let assetId = null
 
                 if (imei2 || imei1) {
@@ -159,7 +167,7 @@ export async function GET() {
                 }
 
                 // TABLET
-                const tabletImei = row[9]?.toString().trim()
+                const tabletImei = row[9]?.toString().trim().substring(0, 20)
                 if (tabletImei && tabletImei.length > 5) {
                     let tabResult = await db.select().from(assets).where(eq(assets.imei1, tabletImei))
                     let tab = tabResult[0]
