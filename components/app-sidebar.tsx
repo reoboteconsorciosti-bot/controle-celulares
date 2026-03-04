@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { useSession } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 import {
   LayoutDashboard,
   Users,
@@ -13,6 +13,7 @@ import {
   ArrowLeftRight,
   Server,
   Command,
+  LogOut,
 } from "lucide-react"
 import {
   Sidebar,
@@ -25,12 +26,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarFooter,
 } from "@/components/ui/sidebar"
 
 const navItems = [
   {
     title: "Visao Geral",
-    href: "/",
+    href: "/dashboard",
     icon: LayoutDashboard,
   },
   {
@@ -62,6 +64,15 @@ const navItems = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const { data: session } = useSession()
+
+  const handleLogout = async () => {
+    if (session) {
+      await signOut({ callbackUrl: "/" })
+    } else {
+      window.location.href = "/"
+    }
+  }
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
@@ -122,6 +133,20 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="p-4 border-t border-border/40">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Sair / Trocar Conta"
+              onClick={handleLogout}
+              className="text-muted-foreground hover:bg-muted hover:text-foreground font-medium h-11"
+            >
+              <LogOut className="h-[18px] w-[18px] opacity-70" />
+              <span>Sair / Voltar</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )

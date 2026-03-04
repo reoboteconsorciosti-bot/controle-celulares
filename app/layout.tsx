@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from '@/components/ui/sonner'
 import NextAuthProvider from '@/components/next-auth-provider'
 import { SWRProvider } from '@/components/swr-provider'
+import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -21,13 +22,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased bg-background text-foreground">
         <NextAuthProvider>
-          <SWRProvider>
-            {children}
-            <Toaster richColors position="top-right" />
-            <Analytics />
-          </SWRProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SWRProvider>
+              {children}
+              <Toaster richColors position="top-right" />
+              <Analytics />
+            </SWRProvider>
+          </ThemeProvider>
         </NextAuthProvider>
       </body>
     </html>
