@@ -85,7 +85,6 @@ export default function ColaboradoresPage() {
     // Smart Auto-fill States
     const [consultantName, setConsultantName] = useState("")
     const [autoEmail, setAutoEmail] = useState("")
-    const [autoAgendor, setAutoAgendor] = useState("")
     const [autoGmail, setAutoGmail] = useState("vendedorrbt@gmail.com")
     const [addRole, setAddRole] = useState("Consultor")
     const [editRole, setEditRole] = useState("Consultor")
@@ -191,7 +190,6 @@ export default function ColaboradoresPage() {
 
         // Add auto-generated credentials if creating a new user
         if (!isEdit) {
-            payload.agendorUser = formData.get("agendorUser") || null;
             payload.gmailUser = formData.get("gmailUser") || null;
         }
 
@@ -221,7 +219,6 @@ export default function ColaboradoresPage() {
                 // Reset smart fields
                 setConsultantName("")
                 setAutoEmail("")
-                setAutoAgendor("")
                 setAutoGmail("vendedorrbt@gmail.com")
             }
         } catch (error: any) {
@@ -269,10 +266,8 @@ export default function ColaboradoresPage() {
             const formatted = `${firstName}.${lastName}`
 
             setAutoEmail(`${formatted}@reoboteconsorcios.com.br`)
-            setAutoAgendor(formatted)
         } else {
             setAutoEmail("")
-            setAutoAgendor("")
         }
     }
 
@@ -584,18 +579,7 @@ export default function ColaboradoresPage() {
                                         <ShieldCheck className="h-3.5 w-3.5 text-primary" />
                                         <h4 className="text-[10px] font-bold uppercase tracking-widest text-primary">Credenciais Automáticas</h4>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="space-y-1.5">
-                                            <Label htmlFor="agendorUser" className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Usuário Agendor</Label>
-                                            <Input
-                                                id="agendorUser"
-                                                name="agendorUser"
-                                                placeholder="nome.sobrenome"
-                                                className="h-9 rounded-lg border-primary/20 bg-white dark:bg-zinc-950 font-mono text-xs"
-                                                value={autoAgendor}
-                                                onChange={(e) => setAutoAgendor(e.target.value)}
-                                            />
-                                        </div>
+                                    <div className="grid gap-3">
                                         <div className="space-y-1.5">
                                             <Label htmlFor="gmailUser" className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground ml-1">E-mail Gmail</Label>
                                             <Input
@@ -610,7 +594,7 @@ export default function ColaboradoresPage() {
                                         </div>
                                     </div>
                                     <p className="text-[9px] text-muted-foreground italic pl-1 leading-relaxed">
-                                        Edite os campos acima se necessário. As credenciais de sistema serão criadas automaticamente ao salvar.
+                                        O Usuário do Agendor será gerado automaticamente a partir do e-mail corporativo.
                                     </p>
                                 </div>
 

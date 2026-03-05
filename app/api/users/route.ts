@@ -66,11 +66,12 @@ export async function POST(req: NextRequest) {
 
     // Auto-create credentials if provided
     try {
-      if (body.agendorUser) {
+      const agendorUsername = email ? email.split('@')[0] : (body.agendorUser ? body.agendorUser.trim() : null);
+      if (agendorUsername) {
         await db.insert(require("@/lib/db/schema").credentials).values({
           userId: newUser.id,
           system: "Agendor",
-          username: body.agendorUser.trim(),
+          username: agendorUsername,
         })
       }
       if (body.gmailUser) {
