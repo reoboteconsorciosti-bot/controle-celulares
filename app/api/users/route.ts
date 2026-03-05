@@ -3,6 +3,7 @@ import { users, allocations } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 import { logAction } from "@/lib/audit"
+import { syncUserToAgendor } from "@/lib/agendor"
 
 export async function GET() {
   try {
@@ -83,6 +84,15 @@ export async function POST(req: NextRequest) {
       console.error("Error auto-creating credentials:", credError)
       // Non-blocking error, user is still created.
     }
+
+    // Sync with Agendor
+    await syncUserToAgendor({
+      name: newUser.name,
+      email: newUser.email,
+      phone: newUser.phone,
+      location: newUser.location,
+      role: newUser.role
+    });
 
     return NextResponse.json(newUser, { status: 201 })
   } catch (error) {
