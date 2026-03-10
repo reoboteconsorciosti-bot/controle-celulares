@@ -85,13 +85,22 @@ export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const id = Number(searchParams.get("id"))
+
+    // Busca os dados antes de deletar para a auditoria
+    const simToDelete = await db.query.simCards.findFirst({
+      where: eq(simCards.id, id)
+    })
+
     await db.delete(simCards).where(eq(simCards.id, id))
 
-    await logAction({
-      action: "DELETE",
-      tableName: "sim_cards",
-      recordId: id,
-    })
+    if (simToDelete) {
+      await logAction({
+        action: "DELETE",
+        tableName: "sim_cards",
+        recordId: id,
+        oldData: simToDelete,
+      })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

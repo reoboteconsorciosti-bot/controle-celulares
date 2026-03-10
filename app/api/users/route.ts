@@ -3,7 +3,7 @@ import { users, allocations } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 import { logAction } from "@/lib/audit"
-import { syncUserToAgendor } from "@/lib/agendor"
+import { deactivateAgendorUser } from "@/lib/agendor"
 
 export async function GET() {
   try {
@@ -86,15 +86,6 @@ export async function POST(req: NextRequest) {
       // Non-blocking error, user is still created.
     }
 
-    // Sync with Agendor
-    await syncUserToAgendor({
-      name: newUser.name,
-      email: newUser.email,
-      phone: newUser.phone,
-      location: newUser.location,
-      role: newUser.role
-    });
-
     return NextResponse.json(newUser, { status: 201 })
   } catch (error) {
     console.error("Error creating user:", error)
@@ -142,9 +133,17 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Consultor não encontrado" }, { status: 404 })
     }
 
-    // Efeito Cascata: Se este usuário for desativado, remove ele como supervisor dos seus subordinados.
-    if (body.active === false && updated.role !== "Consultor") {
-      await db.update(users).set({ supervisorId: null }).where(eq(users.supervisorId, id))
+    // Efeito Cascata: Se este usuário for desativado, remove ele como supervisor dos seus subordinados e desativa no Agendor.
+    if (body.active === false) {
+      if (updated.role !== "Consultor") {
+        await db.update(users).set({ supervisorId: null }).where(eq(users.supervisorId, id))
+      }
+
+      // Sincroniza desativação no Agendor (Usuário da Equipe)
+      const rolesToDeactivate = ["Consultor", "Supervisor", "Gerente"];
+      if (updated.email && rolesToDeactivate.includes(updated.role)) {
+        await deactivateAgendorUser(updated.email);
+      }
     }
 
     await logAction({
@@ -165,13 +164,22 @@ export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const id = Number(searchParams.get("id"))
+
+    // Busca os dados antes de deletar para a auditoria
+    const userToDelete = await db.query.users.findFirst({
+      where: eq(users.id, id)
+    })
+
     await db.delete(users).where(eq(users.id, id))
 
-    await logAction({
-      action: "DELETE",
-      tableName: "users",
-      recordId: id,
-    })
+    if (userToDelete) {
+      await logAction({
+        action: "DELETE",
+        tableName: "users",
+        recordId: id,
+        oldData: userToDelete,
+      })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

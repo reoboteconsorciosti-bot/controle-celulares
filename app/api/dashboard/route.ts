@@ -39,7 +39,7 @@ export async function GET() {
       // Sim Card statistics
       db.select({
         total: count(),
-        inUse: sql<number>`count(*) filter (where ${simCards.status} = 'in_use')`,
+        inUse: sql<number>`count(*) filter (where ${simCards.status} = 'in_use' or ${simCards.status} = 'active')`,
         available: sql<number>`count(*) filter (where ${simCards.status} = 'available')`,
         banned: sql<number>`count(*) filter (where ${simCards.status} = 'banned')`,
       }).from(simCards),

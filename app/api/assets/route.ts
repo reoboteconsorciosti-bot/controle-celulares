@@ -91,13 +91,22 @@ export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const id = Number(searchParams.get("id"))
+
+    // Busca os dados antes de deletar para a auditoria
+    const assetToDelete = await db.query.assets.findFirst({
+      where: eq(assets.id, id)
+    })
+
     await db.delete(assets).where(eq(assets.id, id))
 
-    await logAction({
-      action: "DELETE",
-      tableName: "assets",
-      recordId: id,
-    })
+    if (assetToDelete) {
+      await logAction({
+        action: "DELETE",
+        tableName: "assets",
+        recordId: id,
+        oldData: assetToDelete,
+      })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

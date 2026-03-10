@@ -57,10 +57,50 @@ export default function AuditoriaPage() {
         return String(val)
     }
 
+    function getEntityName(log: AuditLog): string {
+        const data = log.newData || log.oldData
+        if (!data) return `ID ${log.recordId}`
+
+        switch (log.tableName) {
+            case 'users':
+                return data.name || data.email || `Usuario ${log.recordId}`
+            case 'assets':
+                return `${data.brand || ''} ${data.model || ''}`.trim() || `Ativo ${log.recordId}`
+            case 'sim_cards':
+                return data.phoneNumber || `SIM ${log.recordId}`
+            case 'allocations':
+                return `Atribuicao #${log.recordId}`
+            case 'credentials':
+                return `${data.system}: ${data.username}`
+            default:
+                return `Registro ${log.recordId}`
+        }
+    }
+
+    function getTableLabel(tableName: string) {
+        const labels: Record<string, string> = {
+            users: "Colaborador",
+            assets: "Ativo / Hardware",
+            sim_cards: "Linha / Chip",
+            allocations: "Atribuicao",
+            credentials: "Credencial",
+            audit_logs: "Auditoria"
+        }
+        return labels[tableName] || tableName
+    }
+
     // Compara os dois objetos e retorna as chaves que mudaram
     function getDiff(oldData: any, newData: any) {
-        const allKeys = Array.from(new Set([...Object.keys(oldData || {}), ...Object.keys(newData || {})]))
-        return allKeys.filter(key => formatValue(oldData?.[key]) !== formatValue(newData?.[key]))
+        if (!oldData || !newData) return []
+        const ignoreFields = ['updatedAt', 'createdAt']
+        const allKeys = Array.from(new Set([...Object.keys(oldData), ...Object.keys(newData)]))
+            .filter(k => !ignoreFields.includes(k))
+
+        return allKeys.filter(key => {
+            const v1 = formatValue(oldData[key])
+            const v2 = formatValue(newData[key])
+            return v1 !== v2
+        })
     }
 
     return (
@@ -125,8 +165,11 @@ export default function AuditoriaPage() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="font-mono text-[13px] text-muted-foreground bg-muted/50 px-2 py-1 rounded">
-                                                    {log.tableName} <span className="opacity-50">#{log.recordId}</span>
+                                                    {getTableLabel(log.tableName)} <span className="opacity-50">#{log.recordId}</span>
                                                 </span>
+                                                <p className="text-[11px] text-muted-foreground mt-1 font-medium truncate max-w-[150px]">
+                                                    {getEntityName(log)}
+                                                </p>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right">
                                                 <Dialog>
@@ -139,10 +182,15 @@ export default function AuditoriaPage() {
                                                         <DialogHeader>
                                                             <DialogTitle className="flex items-center gap-2 text-xl">
                                                                 <ShieldAlert className="h-5 w-5 text-primary" />
-                                                                Inspecao de Log #{log.id}
+                                                                {actionInfo.label} de {getTableLabel(log.tableName)}
                                                             </DialogTitle>
                                                         </DialogHeader>
                                                         <div className="py-4 space-y-6">
+                                                            <div className="bg-primary/5 p-4 rounded-xl border border-primary/10">
+                                                                <p className="text-[10px] uppercase tracking-widest text-primary font-bold mb-1 opacity-70">Alvo da Operacao</p>
+                                                                <p className="text-xl font-bold text-foreground/90">{getEntityName(log)}</p>
+                                                            </div>
+
                                                             <div className="grid grid-cols-2 gap-4 bg-muted/20 p-4 rounded-xl border border-border/40">
                                                                 <div>
                                                                     <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Autor</p>
@@ -153,8 +201,8 @@ export default function AuditoriaPage() {
                                                                     <p className="font-medium">{format(new Date(log.createdAt), "dd/MM/yyyy HH:mm:ss")}</p>
                                                                 </div>
                                                                 <div>
-                                                                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Tabela / ID</p>
-                                                                    <p className="font-mono font-medium">{log.tableName} <span className="text-muted-foreground">({log.recordId})</span></p>
+                                                                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Entidade</p>
+                                                                    <p className="font-mono font-medium">{getTableLabel(log.tableName)} <span className="text-muted-foreground">({log.recordId})</span></p>
                                                                 </div>
                                                                 <div>
                                                                     <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Operacao</p>
