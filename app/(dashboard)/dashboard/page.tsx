@@ -61,13 +61,13 @@ export default function DashboardPage() {
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
         <div className="card-premium p-6 flex flex-col justify-between">
           <div className="flex flex-row items-center justify-between pb-4">
-            <h3 className="text-[14px] font-bold text-foreground/90 tracking-wide uppercase">Colaboradores</h3>
+            <h3 className="text-[14px] font-bold text-foreground/90 tracking-wide uppercase">Consultores</h3>
             <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
               <Users className="h-5 w-5" />
             </div>
           </div>
           <div>
-            <div className="text-4xl font-extrabold tracking-tight text-foreground/90">{data.users?.total || 0}</div>
+            <div className="text-4xl font-extrabold tracking-tight text-foreground/90">{data.users?.totalConsultants || 0}</div>
             <p className="mt-1 mb-3 text-[11px] text-muted-foreground flex items-center gap-1 font-medium pb-2 border-b border-border/40">
               <span className="text-emerald-500 font-semibold flex items-center gap-1"><TrendingUp className="h-3 w-3" /> {data.users?.active || 0}</span> ativos na base
             </p>

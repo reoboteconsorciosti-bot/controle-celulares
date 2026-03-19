@@ -22,6 +22,7 @@ export async function GET() {
       db.select({
         total: count(),
         active: sql<number>`count(*) filter (where ${users.active} = true)`,
+        totalConsultants: sql<number>`count(*) filter (where ${users.role} = 'Consultor')`,
       }).from(users),
 
       // Users by role
@@ -117,6 +118,7 @@ export async function GET() {
       users: {
         total: Number(userStats[0].total),
         active: Number(userStats[0].active),
+        totalConsultants: Number(userStats[0].totalConsultants),
         byRole: usersByRole.map((d: any) => ({ ...d, count: Number(d.count) })),
       },
       assets: {
